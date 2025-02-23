@@ -38,5 +38,8 @@ const UserSchema = new mongoose.Schema({
     isAdmin: {
         type: Boolean,
         default: false,
-    },
-});
+    }
+}, 
+{ timestamps: true }); // Automatically adds createdAt and updatedAt
+
+module.exports = mongoose.model('User', UserSchema); 
