@@ -3,7 +3,6 @@ const Post = require('../models/Post');
 const User = require('../models/user');
 
 //create a post
-
 router.post('/', async (req, res) => {
   const newPost = new Post(req.body);
   try {
@@ -13,8 +12,8 @@ router.post('/', async (req, res) => {
     res.status(500).json(err);
   }
 });
-//update a post
 
+//update a post
 router.put('/:id', async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
@@ -28,23 +27,24 @@ router.put('/:id', async (req, res) => {
     res.status(500).json(err);
   }
 });
+
 //delete a post
-
-router.delete('/:id', async (req, res) => {
-  try {
-    const post = await Post.findById(req.params.id);
-    if (post.userId === req.body.userId) {
-      await post.deleteOne();
-      res.status(200).json('the post has been deleted');
-    } else {
-      res.status(403).json('you can delete only your post');
+router.delete("/:id", async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.id);
+        if (post.userId === req.body.userId) {
+            await post.deleteOne();
+            return res.status(200).json("The post has been deleted");
+        } else {
+            return res.status(403).json("You can only delete your posts");
+        }
+    } catch (err) {
+        return res.status(404).json("post not found");
     }
-  } catch (err) {
-    res.status(500).json(err);
-  }
 });
-//like / dislike a post
 
+
+//like / dislike a post
 router.put('/:id/like', async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
@@ -59,8 +59,8 @@ router.put('/:id/like', async (req, res) => {
     res.status(500).json(err);
   }
 });
-//get a post
 
+//get a post
 router.get('/:id', async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
@@ -71,16 +71,15 @@ router.get('/:id', async (req, res) => {
 });
 
 //get timeline posts
-
-router.get('/timeline/all', async (req, res) => {
-  try {
-    const currentUser = await User.findById(req.body.userId);
+router.get("/timeline/all", async (req, res) => {
+    try {
+    const currentUser = await User.findById(req.query.userId); // The user who wants to see the timeline
     const userPosts = await Post.find({ userId: currentUser._id });
     const friendPosts = await Promise.all(
-      currentUser.followings.map((friendId) => {
-        return Post.find({ userId: friendId });
-      })
-    );
+    currentUser.followings.map((friendId) => {
+    return Post.find({ userId: friendId });
+  })
+);
     res.json(userPosts.concat(...friendPosts))
   } catch (err) {
     res.status(500).json(err);
